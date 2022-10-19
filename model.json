@@ -1,0 +1,38 @@
+[
+  {
+    "id": "Id_5d0dc591-4400-42f5-a16d-c056ff5da1e3",
+    "name": "Task 1",
+    "incoming": ["Flow_109reen"],
+    "outgoing": ["Id_88a3c795-dc81-4026-80c8-70ceb0b87e5d"],
+    "type": "task",
+    "cycletime": 0,
+    "branchingprobabilities": []
+  },
+  {
+    "id": "Id_51bab053-f5ca-454f-8497-56377e96130f",
+    "name": "StartEvent",
+    "incoming": [],
+    "outgoing": ["Id_02ef5a59-a79f-4a79-93da-3998421af9c7"],
+    "type": "event",
+    "cycletime": 0,
+    "branchingprobabilities": []
+  },
+  {
+    "id": "Id_b470c8ed-f7fd-4a23-8947-c70854d3f68b",
+    "name": "EndEvent",
+    "incoming": ["Id_88a3c795-dc81-4026-80c8-70ceb0b87e5d"],
+    "outgoing": [],
+    "type": "event",
+    "cycletime": 0,
+    "branchingprobabilities": []
+  },
+  {
+    "id": "Gateway_1tphwby",
+    "name": "ExclusiveGateway",
+    "incoming": ["Id_02ef5a59-a79f-4a79-93da-3998421af9c7"],
+    "outgoing": ["Flow_109reen"],
+    "type": "ExclusiveGateway",
+    "cycletime": 0,
+    "branchingprobabilities": []
+  }
+]
