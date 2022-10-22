@@ -91,11 +91,11 @@ function App() {
 
   const getElementForGraph = () => {
     const elements = elementRegistry.getAll();
-    const res = [];
+    const obj = {};
     elements.map((element) => {
       const businessObject = element.businessObject;
-      const incoming = businessObject.incoming ? businessObject.incoming.map((obj) => obj.id) : [];
-      const outgoing = businessObject.outgoing ? businessObject.outgoing.map((obj) => obj.id) : [];
+      const incoming = businessObject.incoming ? businessObject.incoming.map((obj) => obj.sourceRef.id) : [];
+      const outgoing = businessObject.outgoing ? businessObject.outgoing.map((obj) => obj.targetRef.id) : [];
       let type;
       let name;
       if (businessObject.$type.includes("Task")) {
@@ -109,7 +109,8 @@ function App() {
       }
 
       if (type) {
-        res.push({
+        const id = businessObject.id.toString();
+        obj[id] = {
           id: businessObject.id,
           name: businessObject.name || name,
           incoming: incoming,
@@ -117,12 +118,12 @@ function App() {
           type: type,
           cycletime: 0,
           branchingprobabilities: []
-        });
+        };
       }
 
       return false;
     });
-    return res;
+    return obj;
   };
 
   useEffect(() => {
