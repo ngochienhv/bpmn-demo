@@ -1,13 +1,26 @@
-import Modeler from "bpmn-js/lib/Modeler";
+import BpmnModeler from "bpmn-js/lib/Modeler";
+import GuidelineValidator from "bpmn-js-guideline-validator";
+import {
+  BpmnPropertiesPanelModule,
+  BpmnPropertiesProviderModule,
+} from 'bpmn-js-properties-panel';
+import MagicPropertiesProviderModule from './provider/magic';
+import magicModdleDescriptor from './descriptors/magic';
 
 import "bpmn-js/dist/assets/diagram-js.css";
 import "bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css";
 
+import "bpmn-js-guideline-validator/assets/css/guideline-validation.css";
+import "bpmn-js-guideline-validator/dist/css/app.css";
+
+import "bpmn-js-properties-panel/dist/assets/element-templates.css";
+import "bpmn-js-properties-panel/dist/assets/properties-panel.css";
+
 import { useEffect, useRef, useState } from "react";
 import { baseXml } from "./utils/baseXml";
+import "./index.css";
 
 function App() {
-  const containerRef = useRef(null);
   const downloadLinkRef = useRef(null);
   const [modeler, setModeler] = useState();
   const [elementRegistry, setElementRegistry] = useState();
@@ -98,14 +111,18 @@ function App() {
       const outgoing = businessObject.outgoing ? businessObject.outgoing.map((obj) => obj.targetRef.id) : [];
       let type;
       let name;
+      let cycletime;
+      let branchingProbabilities;
       if (businessObject.$type.includes("Task")) {
         type = "task";
+        cycletime = parseInt(businessObject.cycleTime);
       } else if (businessObject.$type.includes("Event")) {
         type = "event";
         name = businessObject.$type.split(":")[1];
       } else if (businessObject.$type.includes("Gateway")) {
         type = "gateway"
         name = businessObject.$type.split(":")[1];
+        branchingProbabilities = businessObject.branchingProbability?.split(",").map(item => parseFloat(item.trim()));
       }
 
       if (type) {
@@ -116,8 +133,8 @@ function App() {
           incoming: incoming,
           outgoing: outgoing,
           type: type,
-          cycletime: 0,
-          branchingprobabilities: []
+          cycleTime: cycletime || 0,
+          branchingProbabilities: branchingProbabilities || []
         };
       }
 
@@ -127,9 +144,20 @@ function App() {
   };
 
   useEffect(() => {
-    const container = containerRef.current;
-    const modeler = new Modeler({
-      container,
+    const modeler = new BpmnModeler({
+      container: "#canvas",
+      propertiesPanel: {
+        parent: '#properties'
+      },
+      additionalModules: [
+        GuidelineValidator,
+        BpmnPropertiesPanelModule,
+        BpmnPropertiesProviderModule,
+        MagicPropertiesProviderModule
+      ],
+      moddleExtensions: {
+        magic: magicModdleDescriptor
+      },
       keyboard: {
         bindTo: document,
       },
@@ -156,7 +184,7 @@ function App() {
 
   return (
     <div>
-      <div>
+      <div style={{ position: 'absolute', top: 10 }}>
         <input
           type="file"
           onChange={handleUploadFile}
@@ -165,7 +193,10 @@ function App() {
         <button onClick={() => console.log(JSON.stringify(getElements()))} style={{ marginLeft: 50, width: "auto" }}>Get JSON for restructure</button>
         <button onClick={() => console.log(JSON.stringify(getElementForGraph()))} style={{ marginLeft: 50, width: "auto" }}>Get JSON for graph</button>
       </div>
-      <div ref={containerRef} style={{ width: "100%", height: "100vh" }}></div>
+      <div className="container">
+        <div id="canvas" style={{ width: "100%", height: "100vh", marginTop: 40 }} />
+        <div id="properties" className="properties" />
+      </div>
     </div>
   );
 }

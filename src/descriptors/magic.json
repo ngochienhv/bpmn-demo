@@ -1,0 +1,33 @@
+{
+  "name": "Information",
+  "prefix": "info",
+  "uri": "http://magic",
+  "xml": {
+    "tagAlias": "lowerCase"
+  },
+  "associations": [],
+  "types": [
+    {
+      "name": "TaskWithCycleTime",
+      "extends": ["bpmn:Task"],
+      "properties": [
+        {
+          "name": "cycleTime",
+          "isAttr": true,
+          "type": "Float"
+        }
+      ]
+    },
+    {
+      "name": "GatewayWithPropabilities",
+      "extends": ["bpmn:ExclusiveGateway", "bpmn:InclusiveGateway"],
+      "properties": [
+        {
+          "name": "branchingProbability",
+          "isAttr": true,
+          "type": "String"
+        }
+      ]
+    }
+  ]
+}
