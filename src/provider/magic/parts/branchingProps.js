@@ -2,7 +2,6 @@ import { TextFieldEntry, isTextFieldEntryEdited } from '@bpmn-io/properties-pane
 import { useService } from 'bpmn-js-properties-panel';
 
 export default function (element) {
-
   return [
     {
       id: 'branchingPropability',
@@ -26,7 +25,8 @@ function Branching(props) {
 
   const setValue = value => {
     return modeling.updateProperties(element, {
-      branchingProbability: value
+      branchingProbability: value,
+      name: value
     });
   }
 

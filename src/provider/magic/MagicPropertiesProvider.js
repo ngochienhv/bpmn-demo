@@ -44,7 +44,7 @@ export default function MagicPropertiesProvider(propertiesPanel, translate) {
         groups.push(createMagicGroup(element, translate));
       }
 
-      if (is(element, 'bpmn:ExclusiveGateway') || is(element, 'bpmn:InclusiveGateway') || is(element, 'bpmn:ParallelGateway')) {
+      if (is(element, 'bpmn:SequenceFlow') && (is(element.source, 'bpmn:ExclusiveGateway') || is(element, 'bpmn:InclusiveGateway'))) {
         groups.push(createGatewayGroup(element, translate));
       }
       return groups;
@@ -78,7 +78,7 @@ function createMagicGroup(element, translate) {
 function createGatewayGroup(element, translate) {
   const gatewayGroup = {
     id: 'infomation',
-    label: translate('Gateway'),
+    label: translate('Flow'),
     entries: branchingProps(element)
   }
 

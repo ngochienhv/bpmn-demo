@@ -1,5 +1,5 @@
 import BpmnModeler from "bpmn-js/lib/Modeler";
-import GuidelineValidator from "bpmn-js-guideline-validator";
+import guidelineValidator from "bpmn-js-guideline-validator";
 import {
   BpmnPropertiesPanelModule,
   BpmnPropertiesProviderModule,
@@ -10,7 +10,7 @@ import magicModdleDescriptor from './descriptors/magic';
 import "bpmn-js/dist/assets/diagram-js.css";
 import "bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css";
 
-import "bpmn-js-guideline-validator/assets/css/guideline-validation.css";
+import "bpmn-js-guideline-validator/dist/css/guideline-validation.css";
 import "bpmn-js-guideline-validator/dist/css/app.css";
 
 import "bpmn-js-properties-panel/dist/assets/element-templates.css";
@@ -112,19 +112,18 @@ function App() {
       let type;
       let name;
       let cycletime;
-      let branchingProbabilities;
+      let branchingProbabilities = [];
       if (businessObject.$type.includes("Task")) {
         type = "task";
         cycletime = parseInt(businessObject.cycleTime);
       } else if (businessObject.$type.includes("Event")) {
         type = "event";
         name = businessObject.$type.split(":")[1];
-      } else if (businessObject.$type.includes("Gateway")) {
+      } else if (businessObject.$type.includes("ExclusiveGateway") || businessObject.$type.includes("InclusiveGateway")) {
         type = "gateway"
         name = businessObject.$type.split(":")[1];
-        branchingProbabilities = businessObject.branchingProbability?.split(",").map(item => parseFloat(item.trim()));
+        businessObject.outgoing.map((flow) => branchingProbabilities.push(parseFloat(flow.branchingProbability)))
       }
-
       if (type) {
         const id = businessObject.id.toString();
         obj[id] = {
@@ -143,6 +142,13 @@ function App() {
     return obj;
   };
 
+  const copyToClipboard = () => {
+    const graphString = JSON.stringify(getElementForGraph());
+    navigator.clipboard.writeText(graphString);
+    console.log(graphString);
+    alert('Clipboard copied');
+  };
+
   useEffect(() => {
     const modeler = new BpmnModeler({
       container: "#canvas",
@@ -150,10 +156,10 @@ function App() {
         parent: '#properties'
       },
       additionalModules: [
-        GuidelineValidator,
         BpmnPropertiesPanelModule,
         BpmnPropertiesProviderModule,
-        MagicPropertiesProviderModule
+        MagicPropertiesProviderModule,
+        guidelineValidator
       ],
       moddleExtensions: {
         magic: magicModdleDescriptor
@@ -191,7 +197,7 @@ function App() {
         />
         <a onClick={saveBpmn} href="/" ref={downloadLinkRef}>Export</a>
         <button onClick={() => console.log(JSON.stringify(getElements()))} style={{ marginLeft: 50, width: "auto" }}>Get JSON for restructure</button>
-        <button onClick={() => console.log(JSON.stringify(getElementForGraph()))} style={{ marginLeft: 50, width: "auto" }}>Get JSON for graph</button>
+        <button onClick={copyToClipboard} style={{ marginLeft: 50, width: "auto" }}>Get JSON for graph</button>
       </div>
       <div className="container">
         <div id="canvas" style={{ width: "100%", height: "100vh", marginTop: 40 }} />

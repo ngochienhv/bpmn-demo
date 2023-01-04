@@ -20,7 +20,7 @@
     },
     {
       "name": "GatewayWithPropabilities",
-      "extends": ["bpmn:ExclusiveGateway", "bpmn:InclusiveGateway"],
+      "extends": ["bpmn:SequenceFlow"],
       "properties": [
         {
           "name": "branchingProbability",
