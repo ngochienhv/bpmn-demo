@@ -119,7 +119,7 @@ function App() {
       } else if (businessObject.$type.includes("Event")) {
         type = "event";
         name = businessObject.$type.split(":")[1];
-      } else if (businessObject.$type.includes("ExclusiveGateway") || businessObject.$type.includes("InclusiveGateway")) {
+      } else if (businessObject.$type.includes("Gateway")) {
         type = "gateway"
         name = businessObject.$type.split(":")[1];
         businessObject.outgoing.map((flow) => branchingProbabilities.push(parseFloat(flow.branchingProbability)))
