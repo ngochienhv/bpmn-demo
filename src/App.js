@@ -17,12 +17,35 @@ import "bpmn-js-properties-panel/dist/assets/element-templates.css";
 import "bpmn-js-properties-panel/dist/assets/properties-panel.css";
 
 import { useEffect, useRef, useState } from "react";
+import { Accordion, AccordionBody, AccordionHeader, AccordionItem } from "react-headless-accordion";
 import { baseXml } from "./utils/baseXml";
 import "./index.css";
 
+const Card = ({ data }) => {
+  return (
+    <AccordionItem>
+      {data.map(item => (
+        <>
+          <AccordionHeader>
+            <p className={`accordion-title`}>{item.text}</p>
+          </AccordionHeader>
+          <AccordionBody>
+            <div className="accordion-body">
+              {item.blocks?.length && <Card data={item.blocks} />}
+            </div>
+          </AccordionBody>
+        </>
+      ))}
+    </AccordionItem>
+  )
+}
+
 function App() {
   const downloadLinkRef = useRef(null);
+  const uploadLinkRef = useRef(null);
   const [modeler, setModeler] = useState();
+  const [result, setResult] = useState();
+  const [logType, setLogType] = useState('time');
   const [elementRegistry, setElementRegistry] = useState();
   const [file, setFile] = useState();
 
@@ -59,48 +82,6 @@ function App() {
     }
     );
   }
-
-  const getElements = () => {
-    const elements = elementRegistry.getAll();
-    const res = elements.map((element) => element.businessObject);
-    const result = {
-      tasks: [],
-      gateways: [],
-      flows: []
-    };
-    res.map((element) => {
-      switch (element.$type) {
-        case "bpmn:Participant":
-          result.name = element.name;
-          break;
-        case "bpmn:StartEvent":
-          result.tasks.push({ id: element.id, label: "start" });
-          break;
-        case "bpmn:EndEvent":
-          result.tasks.push({ id: element.id, label: "end" });
-          break;
-        case "bpmn:Task":
-          result.tasks.push({ id: element.id, label: element.name });
-          break;
-        case "bpmn:ExclusiveGateway":
-          result.gateways.push({ id: element.id, type: "XOR", label: null });
-          break;
-        case "bpmn:ParallelGateway":
-          result.gateways.push({ id: element.id, type: "AND", label: null });
-          break;
-        case "bpmn:InclusiveGateway":
-          result.gateways.push({ id: element.id, type: "OR", label: null });
-          break;
-        case "bpmn:SequenceFlow":
-          result.flows.push({ src: element.sourceRef.id, tgt: element.targetRef.id, label: null });
-          break;
-        default:
-          break;
-      }
-      return false;
-    })
-    return result;
-  };
 
   const getElementForGraph = () => {
     const elements = elementRegistry.getAll();
@@ -142,11 +123,15 @@ function App() {
     return obj;
   };
 
-  const copyToClipboard = () => {
+  const copyToClipboard = async () => {
     const graphString = JSON.stringify(getElementForGraph());
-    navigator.clipboard.writeText(graphString);
-    console.log(graphString);
-    alert('Clipboard copied');
+    const res = await fetch('http://localhost:8080/api/evaluate/time', { method: 'post', body: graphString });
+    res.json().then((data) => {
+      console.log(data);
+      setResult(data);
+    }).catch((err) => {
+      console.log(err);
+    })
   };
 
   useEffect(() => {
@@ -159,7 +144,7 @@ function App() {
         BpmnPropertiesPanelModule,
         BpmnPropertiesProviderModule,
         MagicPropertiesProviderModule,
-        guidelineValidator
+        // guidelineValidator
       ],
       moddleExtensions: {
         magic: magicModdleDescriptor
@@ -187,22 +172,89 @@ function App() {
     file && renderDiagram();
   }, [file]);
 
-
   return (
-    <div>
-      <div style={{ position: 'absolute', top: 10 }}>
+    <div className="container">
+      <div>
         <input
           type="file"
           onChange={handleUploadFile}
+          ref={uploadLinkRef}
+          style={{ display: 'none' }}
         />
-        <a onClick={saveBpmn} href="/" ref={downloadLinkRef}>Export</a>
-        <button onClick={() => console.log(JSON.stringify(getElements()))} style={{ marginLeft: 50, width: "auto" }}>Get JSON for restructure</button>
-        <button onClick={copyToClipboard} style={{ marginLeft: 50, width: "auto" }}>Get JSON for graph</button>
+        <div style={{ backgroundColor: '#228BE6', display: 'flex', flexDirection: 'row', padding: 22.5 }}>
+          <a href="#" className="header-link" style={{ textDecoration: 'underline' }}>BPE</a>
+          <a onClick={saveBpmn} href="#" ref={downloadLinkRef} className="header-link">
+            Export file
+          </a>
+          <a href="#" onClick={() => uploadLinkRef.current.click()} className="header-link">Import File</a>
+          <a href="#" onClick={copyToClipboard} className="header-link">Evaluate</a>
+        </div>
+        <div id="canvas" />
+        {result ?
+          <div style={{ height: 220, backgroundColor: 'white', position: 'absolute', left: '0', bottom: '0', right: '20%', borderTop: '1px solid black', display: 'flex' }}>
+            <div style={{ width: '49%', padding: 20 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '33% 33% 34%', borderBottom: '1px solid #D8D8D8' }}>
+                <h3 >Number</h3>
+                <h3>Criteria</h3>
+                <h3>Value</h3>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '33% 33% 34%', borderBottom: '1px solid #D8D8D8', cursor: 'pointer' }} onClick={() => setLogType('time')}>
+                <h3 style={{ fontWeight: 500 }}>1</h3>
+                <h3 style={{ fontWeight: 500 }}>Total cycle time</h3>
+                <h3 style={{ fontWeight: 500 }}>{result?.currentCycleTime}</h3>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '33% 33% 34%', borderBottom: '1px solid #D8D8D8', cursor: 'pointer' }} onClick={() => setLogType('quality')}>
+                <h3 style={{ fontWeight: 500 }}>2</h3>
+                <h3 style={{ fontWeight: 500 }}>Quality</h3>
+                <h3 style={{ fontWeight: 500 }}>{result?.quality}</h3>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '33% 33% 34%', borderBottom: '1px solid #D8D8D8', cursor: 'pointer' }} onClick={() => setLogType('flexibility')}>
+                <h3 style={{ fontWeight: 500 }}>3</h3>
+                <h3 style={{ fontWeight: 500 }}>Flexibility</h3>
+                <h3 style={{ fontWeight: 500 }}>{result?.flexibility}</h3>
+              </div>
+            </div>
+            <div style={{ width: '2%', borderLeft: '1px solid black' }} />
+            <div style={{ width: '49%', padding: 20 }}>
+              {(() => {
+                switch (logType) {
+                  default:
+                  case 'time':
+                    return (<>
+                      <h3>Total cycle time Log</h3>
+                      <Accordion>
+                        <Card data={result?.logsCycleTime} />
+                      </Accordion>
+                    </>)
+                  case 'quality':
+                    return (<>
+                      <h3>Quality Log</h3>
+                      <h3>Total loops' cycle time: <span style={{ fontWeight: 500 }}>{result?.totalCycleTimeAllLoops}</span></h3>
+                      {result?.logsQuality.map((log) => <Accordion>
+                        <AccordionHeader>
+                          <p>{log.text}</p>
+                        </AccordionHeader>
+                        <AccordionBody>
+                          <p><span style={{ fontWeight: 600 }}>Start Gateway: </span>{log.start}</p>
+                          <p><span style={{ fontWeight: 600 }}>End Gateway: </span>{log.end}</p>
+                          <p><span style={{ fontWeight: 600 }}>Repetition Work: </span>{log.reworkProbability}</p>
+                          <p><span style={{ fontWeight: 600 }}>Cycle Time: </span>{log.cycleTime}</p>
+                        </AccordionBody>
+                      </Accordion>)}
+                    </>)
+                  case 'flexibility':
+                    return (<>
+                      <h3>Flexibility Log</h3>
+                      <h3>Number of total tasks: <span style={{ fontWeight: 500 }}>{result?.numberOfTotalTasks}</span></h3>
+                      <h3>Number of optional tasks: <span style={{ fontWeight: 500 }}>{result?.numberOfOptionalTasks}</span></h3>
+                    </>)
+                }
+              }
+              )()}
+            </div>
+          </div> : null}
       </div>
-      <div className="container">
-        <div id="canvas" style={{ width: "100%", height: "100vh", marginTop: 40 }} />
-        <div id="properties" className="properties" />
-      </div>
+      <div id="properties" className="properties" />
     </div>
   );
 }

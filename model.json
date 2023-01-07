@@ -2,20 +2,20 @@
   "Id_5d0dc591-4400-42f5-a16d-c056ff5da1e3": {
     "id": "Id_5d0dc591-4400-42f5-a16d-c056ff5da1e3",
     "name": "Task 1",
-    "incoming": ["Id_51bab053-f5ca-454f-8497-56377e96130f"],
+    "incoming": ["Gateway_1nrk9zp", "Gateway_1nrk9zp"],
     "outgoing": ["Id_b470c8ed-f7fd-4a23-8947-c70854d3f68b"],
     "type": "task",
-    "cycletime": 0,
-    "branchingprobabilities": []
+    "cycleTime": 0,
+    "branchingProbabilities": []
   },
   "Id_51bab053-f5ca-454f-8497-56377e96130f": {
     "id": "Id_51bab053-f5ca-454f-8497-56377e96130f",
     "name": "StartEvent",
     "incoming": [],
-    "outgoing": ["Id_5d0dc591-4400-42f5-a16d-c056ff5da1e3"],
+    "outgoing": ["Gateway_1nrk9zp"],
     "type": "event",
-    "cycletime": 0,
-    "branchingprobabilities": []
+    "cycleTime": 0,
+    "branchingProbabilities": []
   },
   "Id_b470c8ed-f7fd-4a23-8947-c70854d3f68b": {
     "id": "Id_b470c8ed-f7fd-4a23-8947-c70854d3f68b",
@@ -23,7 +23,19 @@
     "incoming": ["Id_5d0dc591-4400-42f5-a16d-c056ff5da1e3"],
     "outgoing": [],
     "type": "event",
-    "cycletime": 0,
-    "branchingprobabilities": []
+    "cycleTime": 0,
+    "branchingProbabilities": []
+  },
+  "Gateway_1nrk9zp": {
+    "id": "Gateway_1nrk9zp",
+    "name": "ExclusiveGateway",
+    "incoming": ["Id_51bab053-f5ca-454f-8497-56377e96130f"],
+    "outgoing": [
+      "Id_5d0dc591-4400-42f5-a16d-c056ff5da1e3",
+      "Id_5d0dc591-4400-42f5-a16d-c056ff5da1e3"
+    ],
+    "type": "gateway",
+    "cycleTime": 0,
+    "branchingProbabilities": [0.5, 0.5]
   }
 }
