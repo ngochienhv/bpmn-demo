@@ -257,32 +257,14 @@ function App() {
                         <Text weight={600} size="md">Number of total tasks: <span style={{ fontWeight: 500 }}>{result?.numberOfTotalTasks}</span></Text>
                         <Text weight={600} size="md">Number of optional tasks: <span style={{ fontWeight: 500 }}>{result?.numberOfOptionalTasks}</span></Text>
                         {result?.logsFlexibility.map((log) =>
-                          <>
-                            <MantineAccordion defaultValue={log.text}>
-                              <MantineAccordion.Item value={log.text}>
-                                <MantineAccordion.Control><Text weight={600} size="md">{log.text}</Text></MantineAccordion.Control>
-                                <MantineAccordion.Panel>
-                                  {log.taskIDs?.map((taskID, index) => <Text size="md">{index}. {taskID}</Text>)}
-                                </MantineAccordion.Panel>
-                              </MantineAccordion.Item>
-                            </MantineAccordion>
-                            <MantineAccordion defaultValue={log.text}>
-                              <MantineAccordion.Item value={log.text}>
-                                <MantineAccordion.Control><Text weight={600} size="md">{log.text}</Text></MantineAccordion.Control>
-                                <MantineAccordion.Panel>
-                                  {log.taskIDs?.map((taskID, index) => <Text size="md">{index}. {taskID}</Text>)}
-                                </MantineAccordion.Panel>
-                              </MantineAccordion.Item>
-                            </MantineAccordion>
-                            <MantineAccordion defaultValue={log.text}>
-                              <MantineAccordion.Item value={log.text}>
-                                <MantineAccordion.Control><Text weight={600} size="md">{log.text}</Text></MantineAccordion.Control>
-                                <MantineAccordion.Panel>
-                                  {log.taskIDs?.map((taskID, index) => <Text size="md">{index}. {taskID}</Text>)}
-                                </MantineAccordion.Panel>
-                              </MantineAccordion.Item>
-                            </MantineAccordion>
-                          </>
+                          <MantineAccordion defaultValue={log.text}>
+                            <MantineAccordion.Item value={log.text}>
+                              <MantineAccordion.Control><Text weight={600} size="md">{log.text}</Text></MantineAccordion.Control>
+                              <MantineAccordion.Panel>
+                                {log.taskIDs?.map((taskID, index) => <Text size="md">{index}. {taskID}</Text>)}
+                              </MantineAccordion.Panel>
+                            </MantineAccordion.Item>
+                          </MantineAccordion>
                         )}
                       </ScrollArea>)
                 }
