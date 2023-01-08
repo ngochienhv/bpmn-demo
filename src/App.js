@@ -17,32 +17,30 @@ import "bpmn-js-properties-panel/dist/assets/element-templates.css";
 import "bpmn-js-properties-panel/dist/assets/properties-panel.css";
 
 import { useEffect, useRef, useState } from "react";
-import { Accordion, AccordionBody, AccordionHeader, AccordionItem } from "react-headless-accordion";
 import { baseXml } from "./utils/baseXml";
-import "./index.css";
+import { AppShell, Box, Divider, Accordion as MantineAccordion, Table, SimpleGrid, Text, Paper, Space, Grid } from "@mantine/core";
+import { NavbarMinimalColored } from "./Navbar";
+import { IconArrowForward } from "@tabler/icons";
 
-const Card = ({ data }) => {
+const Card = ({ data, level }) => {
+  level = level + 1;
   return (
-    <AccordionItem>
-      {data.map(item => (
-        <>
-          <AccordionHeader>
-            <p className={`accordion-title`}>{item.text}</p>
-          </AccordionHeader>
-          <AccordionBody>
-            <div className="accordion-body">
-              {item.blocks?.length && <Card data={item.blocks} />}
-            </div>
-          </AccordionBody>
-        </>
-      ))}
-    </AccordionItem>
+    data.map((item, index) => (
+      <Paper>
+        <Text size="md">{level - 1}.{index}. {item.text}</Text>
+        <Grid columns={30}>
+          <Grid.Col span={level}>{item.blocks?.length > 0 ? <IconArrowForward /> : null}</Grid.Col>
+          <Grid.Col span={30 - level}>
+            {item.blocks?.length > 0 && <Card data={item.blocks} level={level} />}
+          </Grid.Col>
+        </Grid>
+      </Paper>
+    ))
   )
 }
 
 function App() {
   const downloadLinkRef = useRef(null);
-  const uploadLinkRef = useRef(null);
   const [modeler, setModeler] = useState();
   const [result, setResult] = useState();
   const [logType, setLogType] = useState('time');
@@ -123,7 +121,7 @@ function App() {
     return obj;
   };
 
-  const copyToClipboard = async () => {
+  const evaluate = async () => {
     const graphString = JSON.stringify(getElementForGraph());
     const res = await fetch('http://localhost:8080/api/evaluate/time', { method: 'post', body: graphString });
     res.json().then((data) => {
@@ -173,89 +171,91 @@ function App() {
   }, [file]);
 
   return (
-    <div className="container">
-      <div>
-        <input
-          type="file"
-          onChange={handleUploadFile}
-          ref={uploadLinkRef}
-          style={{ display: 'none' }}
-        />
-        <div style={{ backgroundColor: '#228BE6', display: 'flex', flexDirection: 'row', padding: 22.5 }}>
-          <a href="#" className="header-link" style={{ textDecoration: 'underline' }}>BPE</a>
-          <a onClick={saveBpmn} href="#" ref={downloadLinkRef} className="header-link">
-            Export file
-          </a>
-          <a href="#" onClick={() => uploadLinkRef.current.click()} className="header-link">Import File</a>
-          <a href="#" onClick={copyToClipboard} className="header-link">Evaluate</a>
-        </div>
-        <div id="canvas" />
-        {result ?
-          <div style={{ height: 220, backgroundColor: 'white', position: 'absolute', left: '0', bottom: '0', right: '20%', borderTop: '1px solid black', display: 'flex' }}>
-            <div style={{ width: '49%', padding: 20 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '33% 33% 34%', borderBottom: '1px solid #D8D8D8' }}>
-                <h3 >Number</h3>
-                <h3>Criteria</h3>
-                <h3>Value</h3>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '33% 33% 34%', borderBottom: '1px solid #D8D8D8', cursor: 'pointer' }} onClick={() => setLogType('time')}>
-                <h3 style={{ fontWeight: 500 }}>1</h3>
-                <h3 style={{ fontWeight: 500 }}>Total cycle time</h3>
-                <h3 style={{ fontWeight: 500 }}>{result?.currentCycleTime}</h3>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '33% 33% 34%', borderBottom: '1px solid #D8D8D8', cursor: 'pointer' }} onClick={() => setLogType('quality')}>
-                <h3 style={{ fontWeight: 500 }}>2</h3>
-                <h3 style={{ fontWeight: 500 }}>Quality</h3>
-                <h3 style={{ fontWeight: 500 }}>{result?.quality}</h3>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '33% 33% 34%', borderBottom: '1px solid #D8D8D8', cursor: 'pointer' }} onClick={() => setLogType('flexibility')}>
-                <h3 style={{ fontWeight: 500 }}>3</h3>
-                <h3 style={{ fontWeight: 500 }}>Flexibility</h3>
-                <h3 style={{ fontWeight: 500 }}>{result?.flexibility}</h3>
-              </div>
-            </div>
-            <div style={{ width: '2%', borderLeft: '1px solid black' }} />
-            <div style={{ width: '49%', padding: 20 }}>
+    <AppShell navbar={
+      <NavbarMinimalColored
+        handleUploadFile={handleUploadFile}
+        downloadLinkRef={downloadLinkRef}
+        saveBpmn={saveBpmn}
+        evaluate={evaluate}
+      />}
+      aside={
+        <Box id="properties" style={{ width: "20%", borderLeft: "1px solid #D8D8D8" }} />
+      }>
+      <Box id="canvas" style={{ height: result ? '65vh' : '100%' }} />
+
+      {result ?
+        <>
+          <Divider h="my" />
+          <SimpleGrid cols={2}>
+            <Box>
+              <Table highlightOnHover fontSize="md">
+                <thead>
+                  <tr>
+                    <th>Number</th>
+                    <th>Criteria</th>
+                    <th>Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr onClick={() => setLogType('time')} style={{ cursor: 'pointer' }}>
+                    <td>1</td>
+                    <td>Total Cycle Time</td>
+                    <td>{result?.currentCycleTime}</td>
+                  </tr>
+                  <tr onClick={() => setLogType('quality')} style={{ cursor: 'pointer' }}>
+                    <td>2</td>
+                    <td>Quality</td>
+                    <td>{result?.quality}</td>
+                  </tr>
+                  <tr onClick={() => setLogType('flexibility')} style={{ cursor: 'pointer' }}>
+                    <td>3</td>
+                    <td>Flexibility</td>
+                    <td>{result?.flexibility}</td>
+                  </tr>
+                </tbody>
+              </Table>
+            </Box>
+            <Box>
               {(() => {
                 switch (logType) {
                   default:
                   case 'time':
                     return (<>
-                      <h3>Total cycle time Log</h3>
-                      <Accordion>
-                        <Card data={result?.logsCycleTime} />
-                      </Accordion>
+                      <Text weight={600} size="lg">Total cycle time Log</Text>
+                      <Space h="md" />
+                      <Card data={result?.logsCycleTime} level={1} />
                     </>)
                   case 'quality':
                     return (<>
-                      <h3>Quality Log</h3>
-                      <h3>Total loops' cycle time: <span style={{ fontWeight: 500 }}>{result?.totalCycleTimeAllLoops}</span></h3>
-                      {result?.logsQuality.map((log) => <Accordion>
-                        <AccordionHeader>
-                          <p>{log.text}</p>
-                        </AccordionHeader>
-                        <AccordionBody>
-                          <p><span style={{ fontWeight: 600 }}>Start Gateway: </span>{log.start}</p>
-                          <p><span style={{ fontWeight: 600 }}>End Gateway: </span>{log.end}</p>
-                          <p><span style={{ fontWeight: 600 }}>Repetition Work: </span>{log.reworkProbability}</p>
-                          <p><span style={{ fontWeight: 600 }}>Cycle Time: </span>{log.cycleTime}</p>
-                        </AccordionBody>
-                      </Accordion>)}
+                      <Text weight={600} size="lg">Quality Log</Text>
+                      <Text weight={600} size="md">Total loops' cycle time: <span style={{ fontWeight: 500 }}>{result?.totalCycleTimeAllLoops}</span></Text>
+                      {result?.logsQuality.map((log) =>
+                        <MantineAccordion defaultValue={log.text}>
+                          <MantineAccordion.Item value={log.text}>
+                            <MantineAccordion.Control><Text weight={600} size="md">{log.text}</Text></MantineAccordion.Control>
+                            <MantineAccordion.Panel>
+                              <Text size="md"><Text weight={600} span>Start Gateway: </Text>{log.start}</Text>
+                              <Text size="md"><Text weight={600} span>End Gateway: </Text>{log.end}</Text>
+                              <Text size="md"><Text weight={600} span>Repetition Work: </Text>{log.reworkProbability}</Text>
+                              <Text size="md"><Text weight={600} span>Cycle Time: </Text>{log.cycleTime}</Text>
+                            </MantineAccordion.Panel>
+                          </MantineAccordion.Item>
+                        </MantineAccordion>
+                      )}
                     </>)
                   case 'flexibility':
                     return (<>
-                      <h3>Flexibility Log</h3>
-                      <h3>Number of total tasks: <span style={{ fontWeight: 500 }}>{result?.numberOfTotalTasks}</span></h3>
-                      <h3>Number of optional tasks: <span style={{ fontWeight: 500 }}>{result?.numberOfOptionalTasks}</span></h3>
+                      <Text weight={600} size="lg">Flexibility Log</Text>
+                      <Text weight={600} size="md">Number of total tasks: <span style={{ fontWeight: 500 }}>{result?.numberOfTotalTasks}</span></Text>
+                      <Text weight={600} size="md">Number of optional tasks: <span style={{ fontWeight: 500 }}>{result?.numberOfOptionalTasks}</span></Text>
                     </>)
                 }
               }
               )()}
-            </div>
-          </div> : null}
-      </div>
-      <div id="properties" className="properties" />
-    </div>
+            </Box>
+          </SimpleGrid>
+        </> : null}
+    </AppShell>
   );
 }
 
