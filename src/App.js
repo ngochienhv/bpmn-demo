@@ -18,9 +18,11 @@ import "bpmn-js-properties-panel/dist/assets/properties-panel.css";
 
 import { useEffect, useRef, useState } from "react";
 import { baseXml } from "./utils/baseXml";
-import { AppShell, Box, Divider, Accordion as MantineAccordion, Table, SimpleGrid, Text, Paper, Space, Grid } from "@mantine/core";
+import { AppShell, Box, Divider, Accordion as MantineAccordion, Table, SimpleGrid, Text, Paper, Space, Grid, Aside, ScrollArea } from "@mantine/core";
 import { NavbarMinimalColored } from "./Navbar";
 import { IconArrowForward } from "@tabler/icons";
+
+import './index.css';
 
 const Card = ({ data, level }) => {
   level = level + 1;
@@ -179,9 +181,12 @@ function App() {
         evaluate={evaluate}
       />}
       aside={
-        <Box id="properties" style={{ width: "20%", borderLeft: "1px solid #D8D8D8" }} />
+        <Aside height="100vh"
+          width={{ base: 250 }}>
+          <Box id="properties" />
+        </Aside>
       }>
-      <Box id="canvas" style={{ height: result ? '65vh' : '100%' }} />
+      <Box id="canvas" style={{ height: result ? '70vh' : '100%' }} />
 
       {result ?
         <>
@@ -220,35 +225,66 @@ function App() {
                 switch (logType) {
                   default:
                   case 'time':
-                    return (<>
-                      <Text weight={600} size="lg">Total cycle time Log</Text>
-                      <Space h="md" />
-                      <Card data={result?.logsCycleTime} level={1} />
-                    </>)
+                    return (
+                      <ScrollArea style={{ height: '25vh' }}>
+                        <Text weight={600} size="lg">Total cycle time Log</Text>
+                        <Space h="md" />
+                        <Card data={result?.logsCycleTime} level={1} />
+                      </ScrollArea>)
                   case 'quality':
-                    return (<>
-                      <Text weight={600} size="lg">Quality Log</Text>
-                      <Text weight={600} size="md">Total loops' cycle time: <span style={{ fontWeight: 500 }}>{result?.totalCycleTimeAllLoops}</span></Text>
-                      {result?.logsQuality.map((log) =>
-                        <MantineAccordion defaultValue={log.text}>
-                          <MantineAccordion.Item value={log.text}>
-                            <MantineAccordion.Control><Text weight={600} size="md">{log.text}</Text></MantineAccordion.Control>
-                            <MantineAccordion.Panel>
-                              <Text size="md"><Text weight={600} span>Start Gateway: </Text>{log.start}</Text>
-                              <Text size="md"><Text weight={600} span>End Gateway: </Text>{log.end}</Text>
-                              <Text size="md"><Text weight={600} span>Repetition Work: </Text>{log.reworkProbability}</Text>
-                              <Text size="md"><Text weight={600} span>Cycle Time: </Text>{log.cycleTime}</Text>
-                            </MantineAccordion.Panel>
-                          </MantineAccordion.Item>
-                        </MantineAccordion>
-                      )}
-                    </>)
+                    return (
+                      <ScrollArea style={{ height: '25vh' }}>
+                        <Text weight={600} size="lg">Quality Log</Text>
+                        <Text weight={600} size="md">Total loops' cycle time: <span style={{ fontWeight: 500 }}>{result?.totalCycleTimeAllLoops}</span></Text>
+                        {result?.logsQuality.map((log) =>
+                          <MantineAccordion defaultValue={log.text}>
+                            <MantineAccordion.Item value={log.text}>
+                              <MantineAccordion.Control><Text weight={600} size="md">{log.text}</Text></MantineAccordion.Control>
+                              <MantineAccordion.Panel>
+                                <Text size="md"><Text weight={600} span>Start Gateway: </Text>{log.start}</Text>
+                                <Text size="md"><Text weight={600} span>End Gateway: </Text>{log.end}</Text>
+                                <Text size="md"><Text weight={600} span>Repetition Work: </Text>{log.reworkProbability}</Text>
+                                <Text size="md"><Text weight={600} span>Cycle Time: </Text>{log.cycleTime}</Text>
+                              </MantineAccordion.Panel>
+                            </MantineAccordion.Item>
+                          </MantineAccordion>
+                        )}
+                      </ScrollArea>)
                   case 'flexibility':
-                    return (<>
-                      <Text weight={600} size="lg">Flexibility Log</Text>
-                      <Text weight={600} size="md">Number of total tasks: <span style={{ fontWeight: 500 }}>{result?.numberOfTotalTasks}</span></Text>
-                      <Text weight={600} size="md">Number of optional tasks: <span style={{ fontWeight: 500 }}>{result?.numberOfOptionalTasks}</span></Text>
-                    </>)
+                    return (
+                      <ScrollArea style={{ height: '25vh' }}>
+                        <Text weight={600} size="lg">Flexibility Log</Text>
+                        <Text weight={600} size="md">Number of total tasks: <span style={{ fontWeight: 500 }}>{result?.numberOfTotalTasks}</span></Text>
+                        <Text weight={600} size="md">Number of optional tasks: <span style={{ fontWeight: 500 }}>{result?.numberOfOptionalTasks}</span></Text>
+                        {result?.logsFlexibility.map((log) =>
+                          <>
+                            <MantineAccordion defaultValue={log.text}>
+                              <MantineAccordion.Item value={log.text}>
+                                <MantineAccordion.Control><Text weight={600} size="md">{log.text}</Text></MantineAccordion.Control>
+                                <MantineAccordion.Panel>
+                                  {log.taskIDs?.map((taskID, index) => <Text size="md">{index}. {taskID}</Text>)}
+                                </MantineAccordion.Panel>
+                              </MantineAccordion.Item>
+                            </MantineAccordion>
+                            <MantineAccordion defaultValue={log.text}>
+                              <MantineAccordion.Item value={log.text}>
+                                <MantineAccordion.Control><Text weight={600} size="md">{log.text}</Text></MantineAccordion.Control>
+                                <MantineAccordion.Panel>
+                                  {log.taskIDs?.map((taskID, index) => <Text size="md">{index}. {taskID}</Text>)}
+                                </MantineAccordion.Panel>
+                              </MantineAccordion.Item>
+                            </MantineAccordion>
+                            <MantineAccordion defaultValue={log.text}>
+                              <MantineAccordion.Item value={log.text}>
+                                <MantineAccordion.Control><Text weight={600} size="md">{log.text}</Text></MantineAccordion.Control>
+                                <MantineAccordion.Panel>
+                                  {log.taskIDs?.map((taskID, index) => <Text size="md">{index}. {taskID}</Text>)}
+                                </MantineAccordion.Panel>
+                              </MantineAccordion.Item>
+                            </MantineAccordion>
+                          </>
+                        )}
+                      </ScrollArea>)
                 }
               }
               )()}

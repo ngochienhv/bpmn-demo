@@ -44,7 +44,7 @@ export function NavbarMinimalColored({ handleUploadFile, downloadLinkRef, saveBp
 
   return (
     <Navbar
-      height={750}
+      height="100vh"
       width={{ base: 80 }}
       p="md"
       sx={(theme) => ({
