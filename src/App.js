@@ -29,7 +29,7 @@ const Card = ({ data, level }) => {
   return (
     data.map((item, index) => (
       <Paper>
-        <Text size="md">{level - 1}.{index}. {item.text}</Text>
+        <Text size="md">{item.text}</Text>
         <Grid columns={30}>
           <Grid.Col span={level}>{item.blocks?.length > 0 ? <IconArrowForward /> : null}</Grid.Col>
           <Grid.Col span={30 - level}>
