@@ -186,7 +186,7 @@ function App() {
           <Box id="properties" />
         </Aside>
       }>
-      <Box id="canvas" style={{ height: result ? '70vh' : '100%' }} />
+      <Box id="canvas" style={{ height: result ? '50vh' : '100%' }} />
 
       {result ?
         <>
@@ -226,14 +226,14 @@ function App() {
                   default:
                   case 'time':
                     return (
-                      <ScrollArea style={{ height: '25vh' }}>
+                      <ScrollArea style={{ height: '45vh' }}>
                         <Text weight={600} size="lg">Total cycle time Log</Text>
                         <Space h="md" />
                         <Card data={result?.logsCycleTime} level={1} />
                       </ScrollArea>)
                   case 'quality':
                     return (
-                      <ScrollArea style={{ height: '25vh' }}>
+                      <ScrollArea style={{ height: '45vh' }}>
                         <Text weight={600} size="lg">Quality Log</Text>
                         <Text weight={600} size="md">Total loops' cycle time: <span style={{ fontWeight: 500 }}>{result?.totalCycleTimeAllLoops}</span></Text>
                         {result?.logsQuality.map((log) =>
@@ -252,7 +252,7 @@ function App() {
                       </ScrollArea>)
                   case 'flexibility':
                     return (
-                      <ScrollArea style={{ height: '25vh' }}>
+                      <ScrollArea style={{ height: '45vh' }}>
                         <Text weight={600} size="lg">Flexibility Log</Text>
                         <Text weight={600} size="md">Number of total tasks: <span style={{ fontWeight: 500 }}>{result?.numberOfTotalTasks}</span></Text>
                         <Text weight={600} size="md">Number of optional tasks: <span style={{ fontWeight: 500 }}>{result?.numberOfOptionalTasks}</span></Text>
@@ -261,7 +261,7 @@ function App() {
                             <MantineAccordion.Item value={log.text}>
                               <MantineAccordion.Control><Text weight={600} size="md">{log.text}</Text></MantineAccordion.Control>
                               <MantineAccordion.Panel>
-                                {log.taskIDs?.map((taskID, index) => <Text size="md">{index}. {taskID}</Text>)}
+                                {log.taskIDs?.map((taskID, index) => <Text size="md">{index + 1}. {taskID}</Text>)}
                               </MantineAccordion.Panel>
                             </MantineAccordion.Item>
                           </MantineAccordion>
