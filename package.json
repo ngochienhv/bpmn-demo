@@ -16,6 +16,7 @@
     "bpmn-js-guideline-validator": "^0.1.0",
     "bpmn-js-properties-panel": "^1.10.0",
     "diagram-js": "^10.0.0",
+    "min-dash": "^4.0.0",
     "preact": "^10.11.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

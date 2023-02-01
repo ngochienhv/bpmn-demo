@@ -22,6 +22,7 @@ import { AppShell, Box, Divider, Accordion as MantineAccordion, Table, SimpleGri
 import { NavbarMinimalColored } from "./Navbar";
 import { IconArrowForward } from "@tabler/icons";
 
+
 import './index.css';
 
 const Card = ({ data, level }) => {
@@ -136,7 +137,7 @@ function App() {
 
   useEffect(() => {
     const modeler = new BpmnModeler({
-      container: "#canvas",
+      container: '#canvas',
       propertiesPanel: {
         parent: '#properties'
       },
@@ -153,19 +154,18 @@ function App() {
         bindTo: document,
       },
     });
+    setModeler(modeler);
     setElementRegistry(() => modeler.get('elementRegistry'));
-    async function defailtModel() {
-      setModeler(modeler);
+
+    (async () => {
       try {
         await modeler.importXML(baseXml);
-        const canvas = modeler.get("canvas");
-        canvas.zoom("fit-viewport", "auto");
+        const canvas = modeler.get('canvas');
+        canvas.zoom('fit-viewport', 'auto');
       } catch (err) {
         console.log(err);
       }
-    }
-
-    defailtModel();
+    })();
   }, []);
 
   useEffect(() => {
@@ -179,6 +179,7 @@ function App() {
         downloadLinkRef={downloadLinkRef}
         saveBpmn={saveBpmn}
         evaluate={evaluate}
+        modeler={modeler}
       />}
       aside={
         <Aside height="100vh"
