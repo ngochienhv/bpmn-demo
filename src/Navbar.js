@@ -1,51 +1,29 @@
-import { Navbar, Center, Tooltip, createStyles, Stack, Text, Anchor, Accordion, ScrollArea, Button } from '@mantine/core';
 import {
-  IconFileImport,
-  IconFileExport,
-  IconCalculator,
-} from '@tabler/icons';
+  Navbar,
+  Center,
+  Tooltip,
+  createStyles,
+  Stack,
+  Text,
+  Anchor,
+  Accordion,
+  ScrollArea,
+  Button,
+} from '@mantine/core';
 import { useRef } from 'react';
 import { assign } from 'min-dash';
 import { getDi } from 'bpmn-js/lib/util/ModelUtil';
+import { artifactSymbols, dataSymbols, eventSymbols, gatewaySymbols, participantsSymbols, subProcessSymbols, taskSymbols } from './utils/symbols';
 
-const useStyles = createStyles((theme) => ({
-  link: {
-    width: 50,
-    height: 50,
-    borderRadius: theme.radius.md,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: theme.white,
-    opacity: 0.85,
+const useStyles = createStyles((theme, _params, getRef) => ({ label: { ref: getRef('label'), color: theme.white }, chevron: { ref: getRef('chevron'), color: theme.white }, control: { [`&:hover .${getRef('label')}`]: { color: "black" }, [`&:hover .${getRef('chevron')}`]: { color: "black" } } }));
 
-    '&:hover': {
-      opacity: 1,
-      backgroundColor: theme.fn.lighten(
-        theme.fn.variant({ variant: 'filled', color: theme.primaryColor }).background,
-        0.1
-      ),
-    },
-  },
-}));
-
-
-function NavbarActions({ icon: Icon, label, onClick }) {
+export function NavbarMinimalColored({
+  modeler,
+}) {
   const { classes } = useStyles();
-  return (
-    <Tooltip label={label} position="right" transitionDuration={0}>
-      <Button onClick={onClick} className={classes.link}>
-        <Icon stroke={1.5} size={30} />
-      </Button>
-    </Tooltip>
-  );
-}
-
-export function NavbarMinimalColored({ handleUploadFile, downloadLinkRef, saveBpmn, evaluate, modeler }) {
-  const uploadLinkRef = useRef(null);
-
   const handleGateway = (event, type, options) => {
     event.stopPropagation();
+    console.log(options)
     if (modeler) {
       //@ts-ignore
       const elementFactory = modeler.get('elementFactory');
@@ -55,203 +33,179 @@ export function NavbarMinimalColored({ handleUploadFile, downloadLinkRef, saveBp
       var shape = elementFactory.createShape(assign({ type: type }, options));
       if (options) {
         var di = getDi(shape);
+        console.log(di);
         di.isExpanded = options.isExpanded;
+        di.isEventSubProcess = options.isEventSubProcess;
       }
-      create.start(event, shape);
+
+      if (type === 'bpmn:Participant') {
+        create.start(event, elementFactory.createParticipantShape());
+      } else {
+        create.start(event, shape);
+      }
     }
   };
 
   return (
     <Navbar
-      height="100vh"
+      height="100vh - 60px"
       width={{ base: 256 }}
-      p="md"
+      p="sm"
       sx={(theme) => ({
         backgroundColor: theme.fn.variant({ variant: 'filled', color: theme.primaryColor })
           .background,
       })}
     >
-      <Center>
-        <Text color="white" size="xl" weight={600}>BPE</Text>
-      </Center>
-      <ScrollArea>
-        <Navbar.Section grow mt={50}>
-          {/* <Stack justify="center" spacing={0}>
-            <input
-              type="file"
-              onChange={handleUploadFile}
-              ref={uploadLinkRef}
-              style={{ display: 'none' }}
-            />
-            <NavbarActions
-              icon={IconFileImport}
-              label="Import file"
-              onClick={() => uploadLinkRef.current.click()}
-            />
-            <Anchor onClick={saveBpmn} href="#" ref={downloadLinkRef} download>
-              <NavbarActions
-                icon={IconFileExport}
-                label="Export file"
-                onClick={() => { }}
-              />
-            </Anchor>
-            <NavbarActions
-              icon={IconCalculator}
-              label="Evaluate model"
-              onClick={evaluate}
-            />
-          </Stack> */}
-          <Accordion defaultValue="gateway">
-            <Accordion.Item value="gateway">
-              <Accordion.Control ><Text weight={600} size="md">Gateway</Text></Accordion.Control>
-              <Accordion.Panel>
-                <Stack>
-                  <button
-                    className="bpmn-icon-gateway-xor custom-entry"
-                    onClick={(e) => handleGateway(e, 'bpmn:ExclusiveGateway')}
-                    onDragStart={(e) => handleGateway(e, 'bpmn:ExclusiveGateway')}
-                    draggable="true"
-                  >
-                    {' '}
-                    Exclusive Gateway
-                  </button>
-                  <button
-                    className="bpmn-icon-gateway-or custom-entry"
-                    onClick={(e) => handleGateway(e, 'bpmn:InclusiveGateway')}
-                    onDragStart={(e) => handleGateway(e, 'bpmn:InclusiveGateway')}
-                    draggable="true"
-                  >
-                    {' '}
-                    Inclusive Gateway
-                  </button>
-                  <button
-                    className="bpmn-icon-gateway-parallel custom-entry"
-                    onClick={(e) => handleGateway(e, 'bpmn:ParallelGateway')}
-                    onDragStart={(e) => handleGateway(e, 'bpmn:ParallelGateway')}
-                    draggable="true"
-                  >
-                    {' '}
-                    Parallel Gateway
-                  </button>
-                  <button
-                    className="bpmn-icon-gateway-complex custom-entry"
-                    onClick={(e) => handleGateway(e, 'bpmn:ComplexGateway')}
-                    onDragStart={(e) => handleGateway(e, 'bpmn:ComplexGateway')}
-                    draggable="true"
-                  >
-                    {' '}
-                    Complex Gateway
-                  </button>
-                </Stack>
-              </Accordion.Panel>
-            </Accordion.Item>
+      <Navbar.Section grow component={ScrollArea} >
+        <Accordion defaultValue="gateway" classNames={{ label: classes.label, control: classes.control, chevron: classes.chevron }}>
+          <Accordion.Item value="gateway">
+            <Accordion.Control>
+              <Text weight={600} size="md">
+                Gateways
+              </Text>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <Stack>
+                {gatewaySymbols.map((symbol) => <button
+                  className={symbol.className}
+                  onClick={(e) => handleGateway(e, symbol.tagName)}
+                  onDragStart={(e) => handleGateway(e, symbol.tagName)}
+                  draggable="true"
+                >
+                  {' '}
+                  {symbol.name}
+                </button>)}
+              </Stack>
+            </Accordion.Panel>
+          </Accordion.Item>
 
-            <Accordion.Item value="tasks">
-              <Accordion.Control ><Text weight={600} size="md">Tasks</Text></Accordion.Control>
-              <Accordion.Panel>
-                <Stack>
-                  <button
-                    className="bpmn-icon-task custom-entry"
-                    onClick={(e) => handleGateway(e, 'bpmn:Task')}
-                    onDragStart={(e) => handleGateway(e, 'bpmn:Task')}
-                    draggable="true"
-                  >
-                    Task
-                  </button>
-                  <button
-                    className="bpmn-icon-user-task custom-entry"
-                    onClick={(e) => handleGateway(e, 'bpmn:UserTask')}
-                    onDragStart={(e) => handleGateway(e, 'bpmn:UserTask')}
-                    draggable="true"
-                  >
-                    User Task
-                  </button>
-                  <button
-                    className="bpmn-icon-business-rule-task custom-entry"
-                    onClick={(e) => handleGateway(e, 'bpmn:BusinessRuleTask')}
-                    onDragStart={(e) => handleGateway(e, 'bpmn:BusinessRuleTask')}
-                    draggable="true"
-                  >
-                    Business Rule Task
-                  </button>
-                  <button
-                    className="bpmn-icon-manual-task custom-entry"
-                    onClick={(e) => handleGateway(e, 'bpmn:ManualTask')}
-                    onDragStart={(e) => handleGateway(e, 'bpmn:ManualTask')}
-                    draggable="true"
-                  >
-                    Manual Task
-                  </button>
-                  <button
-                    className="bpmn-icon-receive-task custom-entry"
-                    onClick={(e) => handleGateway(e, 'bpmn:ReceiveTask')}
-                    onDragStart={(e) => handleGateway(e, 'bpmn:ReceiveTask')}
-                    draggable="true"
-                  >
-                    Receive Task
-                  </button>
-                  <button
-                    className="bpmn-icon-send-task custom-entry"
-                    onClick={(e) => handleGateway(e, 'bpmn:SendTask')}
-                    onDragStart={(e) => handleGateway(e, 'bpmn:SendTask')}
-                    draggable="true"
-                  >
-                    Send Task
-                  </button>
-                  <button
-                    className="bpmn-icon-script-task custom-entry"
-                    onClick={(e) => handleGateway(e, 'bpmn:ScriptTask')}
-                    onDragStart={(e) => handleGateway(e, 'bpmn:ScriptTask')}
-                    draggable="true"
-                  >
-                    Script Task
-                  </button>
-                  <button
-                    className="bpmn-icon-service-task custom-entry"
-                    onClick={(e) => handleGateway(e, 'bpmn:ServiceTask')}
-                    onDragStart={(e) => handleGateway(e, 'bpmn:ServiceTask')}
-                    draggable="true"
-                  >
-                    Service Task
-                  </button>
-                </Stack>
-              </Accordion.Panel>
-            </Accordion.Item>
+          <Accordion.Item value="tasks">
+            <Accordion.Control>
+              <Text weight={600} size="md">
+                Tasks
+              </Text>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <Stack>
+                {taskSymbols.map((symbol) => <button
+                  className={symbol.className}
+                  onClick={(e) => handleGateway(e, symbol.tagName)}
+                  onDragStart={(e) => handleGateway(e, symbol.tagName)}
+                  draggable="true"
+                >
+                  {' '}
+                  {symbol.name}
+                </button>)}
+              </Stack>
+            </Accordion.Panel>
+          </Accordion.Item>
 
-            <Accordion.Item value="events">
-              <Accordion.Control ><Text weight={600} size="md">Events</Text></Accordion.Control>
-              <Accordion.Panel>
-                <Stack>
-                  <button
-                    className="bpmn-icon-start-event-none custom-entry"
-                    onClick={(e) => handleGateway(e, 'bpmn:StartEvent')}
-                    onDragStart={(e) => handleGateway(e, 'bpmn:StartEvent')}
-                    draggable="true"
-                  >
-                    Start Event
-                  </button>
-                  <button
-                    className="bpmn-icon-end-event-none custom-entry"
-                    onClick={(e) => handleGateway(e, 'bpmn:EndEvent')}
-                    onDragStart={(e) => handleGateway(e, 'bpmn:EndEvent')}
-                    draggable="true"
-                  >
-                    End Event
-                  </button>
-                  <button
-                    className="bpmn-icon-intermediate-event-none custom-entry"
-                    onClick={(e) => handleGateway(e, 'bpmn:IntermediateThrowEvent')}
-                    onDragStart={(e) => handleGateway(e, 'bpmn:IntermediateThrowEvent')}
-                    draggable="true"
-                  >
-                    Intermediate Event
-                  </button>
-                </Stack>
-              </Accordion.Panel>
-            </Accordion.Item>
-          </Accordion>
-        </Navbar.Section>
-      </ScrollArea>
+          <Accordion.Item value="events">
+            <Accordion.Control>
+              <Text weight={600} size="md">
+                Events
+              </Text>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <Stack>
+                {eventSymbols.map((symbol) => <button
+                  className={symbol.className}
+                  onClick={(e) => handleGateway(e, symbol.tagName)}
+                  onDragStart={(e) => handleGateway(e, symbol.tagName)}
+                  draggable="true"
+                >
+                  {' '}
+                  {symbol.name}
+                </button>)}
+              </Stack>
+            </Accordion.Panel>
+          </Accordion.Item>
+
+          <Accordion.Item value="data">
+            <Accordion.Control>
+              <Text weight={600} size="md">
+                Data
+              </Text>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <Stack>
+                {dataSymbols.map((symbol) => <button
+                  className={symbol.className}
+                  onClick={(e) => handleGateway(e, symbol.tagName)}
+                  onDragStart={(e) => handleGateway(e, symbol.tagName)}
+                  draggable="true"
+                >
+                  {' '}
+                  {symbol.name}
+                </button>)}
+              </Stack>
+            </Accordion.Panel>
+          </Accordion.Item>
+
+          <Accordion.Item value="subProcess">
+            <Accordion.Control>
+              <Text weight={600} size="md">
+                Sub Processes
+              </Text>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <Stack>
+                {subProcessSymbols.map((symbol) => <button
+                  className={symbol.className}
+                  onClick={(e) => handleGateway(e, symbol.tagName, symbol.option)}
+                  onDragStart={(e) => handleGateway(e, symbol.tagName, symbol.option)}
+                  draggable="true"
+                >
+                  {' '}
+                  {symbol.name}
+                </button>)}
+              </Stack>
+            </Accordion.Panel>
+          </Accordion.Item>
+
+          <Accordion.Item value="participants">
+            <Accordion.Control>
+              <Text weight={600} size="md">
+                Participants
+              </Text>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <Stack>
+                {participantsSymbols.map((symbol) => <button
+                  className={symbol.className}
+                  onClick={(e) => handleGateway(e, symbol.tagName, symbol.option)}
+                  onDragStart={(e) => handleGateway(e, symbol.tagName, symbol.option)}
+                  draggable="true"
+                >
+                  {' '}
+                  {symbol.name}
+                </button>)}
+              </Stack>
+            </Accordion.Panel>
+          </Accordion.Item>
+
+          <Accordion.Item value="artifacts">
+            <Accordion.Control>
+              <Text weight={600} size="md">
+                Artifacts
+              </Text>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <Stack>
+                {artifactSymbols.map((symbol) => <button
+                  className={symbol.className}
+                  onClick={(e) => handleGateway(e, symbol.tagName, symbol.option)}
+                  onDragStart={(e) => handleGateway(e, symbol.tagName, symbol.option)}
+                  draggable="true"
+                >
+                  {' '}
+                  {symbol.name}
+                </button>)}
+              </Stack>
+            </Accordion.Panel>
+          </Accordion.Item>
+        </Accordion>
+      </Navbar.Section>
     </Navbar>
   );
 }

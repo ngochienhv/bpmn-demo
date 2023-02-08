@@ -24,6 +24,7 @@ import { IconArrowForward } from "@tabler/icons";
 
 
 import './index.css';
+import BpeHeader from "./Header";
 
 const Card = ({ data, level }) => {
   level = level + 1;
@@ -175,10 +176,6 @@ function App() {
   return (
     <AppShell navbar={
       <NavbarMinimalColored
-        handleUploadFile={handleUploadFile}
-        downloadLinkRef={downloadLinkRef}
-        saveBpmn={saveBpmn}
-        evaluate={evaluate}
         modeler={modeler}
       />}
       aside={
@@ -186,7 +183,15 @@ function App() {
           width={{ base: 250 }}>
           <Box id="properties" />
         </Aside>
-      }>
+      }
+      header={<BpeHeader
+        handleUploadFile={handleUploadFile}
+        downloadLinkRef={downloadLinkRef}
+        saveBpmn={saveBpmn}
+        evaluate={evaluate}
+        modeler={modeler}
+      />}
+    >
       <Box id="canvas" style={{ height: result ? '50vh' : '100%' }} />
 
       {result ?

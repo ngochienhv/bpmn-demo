@@ -25,7 +25,7 @@ code {
 [class*=' bpmn-icon-'].custom-entry:before {
   display: inline !important;
   margin-right: 10px;
-  font-size: 20px;
+  font-size: 22px;
 }
 
 [class^='bpmn-icon-'].custom-entry,
@@ -37,7 +37,9 @@ code {
   border: none;
   color: #fff;
   cursor: pointer;
-  padding: 10px;
+  padding: 5px;
+  text-align: left;
+  align-items: center;
 }
 
 [class^='bpmn-icon-'].custom-entry:hover,
